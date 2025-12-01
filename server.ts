@@ -1,10 +1,18 @@
 import express, {Express} from "express"
 import path from "path"
-import router from "./src/index"
+import router from "./src/routes/index"
 import morgan from "morgan"
+import mongoose, { Connection } from 'mongoose'
 
 const app: Express = express()
 const port = 3000
+
+const mongoDB: string = "mongodb://localhost:27017/userdb"
+mongoose.connect(mongoDB)
+mongoose.Promise = Promise
+const db: Connection = mongoose.connection
+
+db.on("error", console.error.bind(console, "MongoDB connection error"))
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))

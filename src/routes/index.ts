@@ -1,22 +1,11 @@
 import {Request, Response, Router} from "express"
-import fs from "fs"
 import { compile } from "morgan"
+import { User, IUser } from '../models/User'
+import populateUsers from '../../data/users'
 
 const router: Router = Router()
 
-let userList: string[] = []
 
-fs.readFile("./data.json", "utf8", (err: NodeJS.ErrnoException | null, data: string) => {
-    if (err) {
-        console.error(err)
-        return
-    }
-    try {
-        userList = JSON.parse(data)
-    } catch (error: any) {
-        console.error(`Error parsing JSON: ${error}`)
-    }
-})
 
 type TUser = {
     name: string
@@ -60,6 +49,19 @@ router.get('/todos/:id', (req, res) => {
             message: "User not found"
         })
     }
+})
+
+router.get("/api/users/populate", async (req: Request, res: Response) => {
+    for (let i = 0; i < populateUsers.length; i++) {
+        const user: IUser = new User({
+            user: populateUsers[i].name,
+            todos: populateUsers[i].todos
+        })
+        await user.save()
+    }
+
+    console.log("Database populated")
+    res.json({message: "Database populated"})
 })
 
 export default router
